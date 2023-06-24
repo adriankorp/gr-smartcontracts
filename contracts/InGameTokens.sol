@@ -1,19 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+//import "hardhat/console.sol";
+
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+
+//import "hardhat/console.sol";
 
 contract InGameTokens is Ownable {
     using ECDSA for bytes32;
 
     address public tokenAddress;
     address public signerAddress;
-    IERC20 token;
+    IERC20 public token;
 
     mapping(address => uint256) public balances;
 
@@ -26,7 +29,7 @@ contract InGameTokens is Ownable {
         signerAddress = msg.sender;
     }
 
-    fallback() external {
+    fallback() external payable {
         revert("Invalid transaction");
     }
 
