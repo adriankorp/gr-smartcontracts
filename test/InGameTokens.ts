@@ -6,7 +6,7 @@ import { ethers } from "hardhat";
 describe("InGameTokens", () => {
   async function deployContract() {
     // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
+    const [owner, otherAccount, thirdAccount] = await ethers.getSigners();
 
     const tokenErc20 = await ethers.getContractFactory("Token");
     const tokenContract = await tokenErc20.deploy();
@@ -20,7 +20,13 @@ describe("InGameTokens", () => {
       await tokenContract.getAddress()
     );
 
-    return { inGameTokensContract, tokenContract, owner, otherAccount };
+    return {
+      inGameTokensContract,
+      tokenContract,
+      owner,
+      otherAccount,
+      thirdAccount,
+    };
   }
 
   describe("Deployment", () => {
@@ -249,6 +255,36 @@ describe("InGameTokens", () => {
       expect(await inGameTokensContract.signerAddress()).to.equal(
         otherAccount.address
       );
+    });
+  });
+  describe("updateUserBalance", () => {
+    it("Should revert if not owner", async () => {
+      const { inGameTokensContract, otherAccount } = await loadFixture(
+        deployContract
+      );
+
+      await expect(
+        inGameTokensContract
+          .connect(otherAccount)
+          .updateUserBalances([otherAccount.address], [1000])
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Should update user balance", async () => {
+      const { inGameTokensContract, otherAccount, thirdAccount } =
+        await loadFixture(deployContract);
+
+      await inGameTokensContract.updateUserBalances(
+        [otherAccount.address, thirdAccount],
+        [1000, 1200]
+      );
+
+      expect(
+        await inGameTokensContract.balances(otherAccount.address)
+      ).to.equal(1000);
+      expect(
+        await inGameTokensContract.balances(thirdAccount.address)
+      ).to.equal(1200);
     });
   });
 });

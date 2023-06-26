@@ -72,6 +72,8 @@ contract InGameTokens is Ownable {
         emit Withdraw(msg.sender, amount);
     }
 
+
+
     function validateSignature(
         address signer,
         uint256 amount,
@@ -85,5 +87,12 @@ contract InGameTokens is Ownable {
 
     function setSignerAddress(address _signerAddress) external onlyOwner {
         signerAddress = _signerAddress;
+    }
+
+    function updateUserBalances(address[] calldata accounts, uint256[] calldata amounts) external onlyOwner {
+        require(accounts.length == amounts.length, "Invalid input");
+        for (uint256 i = 0; i < accounts.length; i++) {
+            balances[accounts[i]] = amounts[i];
+        }
     }
 }
